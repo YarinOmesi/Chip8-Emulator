@@ -1,19 +1,17 @@
 #include "memory.h"
 #include <stdlib.h>
-#include <string.h>
+#include <memory.h>
 
 Memory *create_memory() {
     return (Memory *) malloc(sizeof(Memory));
 }
 
 void init_memory(Memory *memory) {
-    for (int i = 0; i < MEMORY_SIZE; ++i) {
-        memory->bytes[i] = 0;
-    }
+    memset(memory->bytes, 0, MEMORY_SIZE);
 }
 
 uint16_t memory_opcode_at(Memory *mem, size_t index) {
-    return (mem->bytes[index] << 8 | mem->bytes[index +1]);
+    return (mem->bytes[index] << 8 | mem->bytes[index + 1]);
 }
 
 void memory_set(Memory *mem, size_t index, uint8_t value) {
