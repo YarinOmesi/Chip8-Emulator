@@ -4,6 +4,7 @@
 #include "string.h"
 
 void print_opcode(VM *vm, uint16_t opcode) {
+    printf(" %x ",opcode);
     uint16_t left_most = opcode & 0xF000;
     if (opcode == 0x00E0) { // Clear Display
         printf("ClearDisplay()\n");
@@ -75,9 +76,9 @@ void print_opcode(VM *vm, uint16_t opcode) {
             uint8_t value = vm->registers[FIRST_REGISTER(opcode)];
             printf("StoreBcdOf(%x,[%d, %d, %d])\n", FIRST_REGISTER(opcode),value / 100, (value / 10) % 10, value % 10);
         } else if (LAST_2DIGITS(opcode) == 0x55) { //FX55 Store registers V0 through Vx in memory starting memory_at location I.
-            printf("LoadRegisterFromMemory(%X)\n", vm->memory_register);
+            printf("LoadRegisterToMemory(%X)\n", vm->memory_register);
         } else if (LAST_2DIGITS(opcode) == 0x65) { // Read registers V0 through Vx from memory starting memory_at location I.
-            printf("CopyRegisterToMemory(%x)\n", vm->memory_register);
+            printf("CopyRegisterFromMemory(%x)\n", vm->memory_register);
         }
 #pragma endregion F_opcodes
     }else{
