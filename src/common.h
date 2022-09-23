@@ -21,7 +21,7 @@
 #define MEMORY_SIZE 4096
 
 // SDL2
-#define WINDOW_NAME "Yarin"
+#define WINDOW_NAME "Chip8 Emulator"
 #define SCALE 10
 #define WINDOW_WIDTH (CHIP8_DISPLAY_WIDTH * SCALE)
 #define WINDOW_HEIGHT (CHIP8_DISPLAY_HEIGHT * SCALE)
