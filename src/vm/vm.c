@@ -72,7 +72,7 @@ void init_vm(VM *vm) {
  * @param opcode opcode to run
  * @return new program counter ( pc )
  */
-static uint16_t execute_opcode(VM *vm, uint16_t opcode) {
+uint16_t execute_opcode(VM *vm, uint16_t opcode) {
     uint16_t left_most = opcode & 0xF000;
     if (opcode == 0x00E0) { // Clear Display
         clear_display(vm->display);
@@ -112,7 +112,7 @@ static uint16_t execute_opcode(VM *vm, uint16_t opcode) {
         } else if (LAST_DIGIT(opcode) == 4) {
             uint8_t first_register_number = FIRST_REGISTER(opcode);
             uint8_t second_register_value = vm->registers[SECOND_REGISTER(opcode)];
-            vm->registers[0xF] = (second_register_value > 0 && vm->registers[first_register_number] > INT16_MAX - second_register_value);
+            vm->registers[0xF] = (second_register_value > 0 && vm->registers[first_register_number] > UINT8_MAX - second_register_value);
             vm->registers[first_register_number] += second_register_value;
         } else if (LAST_DIGIT(opcode) == 5) {
             uint8_t first_register_number = FIRST_REGISTER(opcode);
@@ -120,6 +120,13 @@ static uint16_t execute_opcode(VM *vm, uint16_t opcode) {
 
             vm->registers[0xF] = (vm->registers[first_register_number] > second_register_value);
             vm->registers[first_register_number] -= second_register_value;
+        }
+        else if (LAST_DIGIT(opcode) == 6) {
+            uint8_t first_register_number = FIRST_REGISTER(opcode);
+            uint8_t second_register_value = vm->registers[SECOND_REGISTER(opcode)];
+
+            vm->registers[0xF] = (vm->registers[first_register_number] & 0x1);
+            vm->registers[first_register_number] /=2;
         }
 #pragma endregion opcodes_8
     } else if (left_most == 0x9000) { // Skip If Registers Not Equal
@@ -134,11 +141,11 @@ static uint16_t execute_opcode(VM *vm, uint16_t opcode) {
         vm->registers[FIRST_REGISTER(opcode)] = (rand() & 255) && VALUE(opcode);
     } else if (left_most == 0xD000) {// DXYN
         // Display n-byte sprite starting at memory location I memory_at (Vx, Vy) memory_set VF = collision.
-        uint8_t row = vm->registers[FIRST_REGISTER(opcode)];
-        uint8_t col = vm->registers[SECOND_REGISTER(opcode)];
+        uint8_t x = vm->registers[FIRST_REGISTER(opcode)];
+        uint8_t y = vm->registers[SECOND_REGISTER(opcode)];
         uint8_t sprite_size = LAST_DIGIT(opcode);
 
-        uint8_t had_collision = display_sprite(vm->display, row, col,(((uint8_t *) vm->memory->bytes) + vm->memory_register), sprite_size);
+        uint8_t had_collision = display_sprite(vm->display, x,y,(((uint8_t *) vm->memory->bytes) + vm->memory_register), sprite_size);
         vm->registers[0xF] = had_collision;
 #ifdef DISPLAY_DUMP
         display_dump(vm);
@@ -181,7 +188,7 @@ static uint16_t execute_opcode(VM *vm, uint16_t opcode) {
                 memory_set(vm->memory, vm->memory_register + 1, (value / 10) % 10);// 10
                 memory_set(vm->memory, vm->memory_register + 2, value % 10); // 1
             } else if (LAST_2DIGITS(opcode) == 0x55) { //FX55 Store registers V0 through Vx in memory starting memory_at location I.
-                memory_load(vm->memory, vm->memory_register, vm->registers, 0, FIRST_REGISTER(opcode));
+                memory_load(vm->memory, vm->memory_register, vm->registers, 0, FIRST_REGISTER(opcode) + 1);
             } else if (LAST_2DIGITS(opcode) == 0x65) { // Read registers V0 through Vx from memory starting memory_at location I.
                 memory_copy(vm->registers, 0, vm->memory, vm->memory_register, FIRST_REGISTER(opcode) + 1);
             }
@@ -211,8 +218,10 @@ void tick(VM *vm) {
 
 void cycle(VM *vm) {
     uint16_t opcode = memory_opcode_at(vm->memory, vm->pc);
+    uint16_t pc = vm->pc;
     vm->pc=execute_opcode(vm, opcode);
 #ifdef PRINT_OPCODE
+    printf("%4x ",pc);
     print_opcode(vm,opcode);
 #endif
 }

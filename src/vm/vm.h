@@ -25,18 +25,20 @@ typedef struct {
 
 void init_vm(VM *vm);
 
+uint16_t execute_opcode(VM *vm, uint16_t opcode);
+
 /**
  * decrement timer and sound register
  * @param VM
  */
-void tick(VM*vm);
+void tick(VM *vm);
 
 /**
  * emulate the cpu
  * fetch decode excute
  * @param vm
  */
-void cycle(VM * vm);
+void cycle(VM *vm);
 
 void free_vm(VM *vm);
 
