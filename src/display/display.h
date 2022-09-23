@@ -27,13 +27,13 @@ void init_display(Display *display);
 /**
  *
  * @param display
- * @param row_pixel
- * @param col_pixel
- * @param sprite n bytes array the represent the sprite every byte in array if row_pixel
+ * @param x
+ * @param y
+ * @param sprite n bytes array the represent the sprite every byte in array if x
  * @param sprite_size size of sprite in bytes
  * @return 1 if any pixel turned off because writing the sprite
  */
-uint8_t display_sprite(Display * display, size_t row_pixel, size_t col_pixel, const uint8_t * sprite, uint8_t sprite_size);
+uint8_t display_sprite(Display * display, size_t x, size_t y, const uint8_t * sprite, uint8_t sprite_size);
 
 void clear_display(Display *display);
 
